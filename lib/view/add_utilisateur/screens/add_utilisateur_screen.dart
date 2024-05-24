@@ -3,9 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sdealsidentification/data/controllers/add_utilisateur_controller.dart';
 import 'package:sdealsidentification/data/models/todo.dart';
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_bloc.dart';
-
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_event.dart';
-
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_state.dart';
 
 class AddUtilisateurScreen extends StatefulWidget {
