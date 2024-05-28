@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sdealsidentification/view/add_todo/add_todo_bloc/add_todo_bloc.dart';
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_bloc.dart';
 import 'package:sdealsidentification/view/add_utilisateur/screens/add_utilisateur_screen.dart';
+import 'package:sdealsidentification/view/image_picker/screens/image_picker_utils.dart';
 import 'package:sdealsidentification/view/list_todos/list_bloc/list_todo_bloc.dart';
+import 'package:sdealsidentification/view/image_picker/image_picker_bloc/image_picker_bloc.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,7 +22,8 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<AddUtilisateurBloc>(
           create: (context) => addUtilisateurBloc,
-        )
+        ),
+        BlocProvider(create: (_) => ImagePickerBloc(ImagePickerUtils())),
       ],
       child: MaterialApp(
         title: 'Soutrali Deals',

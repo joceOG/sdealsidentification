@@ -38,6 +38,8 @@ dependencies:
   flutter_bloc: ^8.1.5
   sqflite: ^2.3.0
   equatable: ^2.0.5
+  image_picker: ^0.8.4+5
+  http: ^1.2.1
 
 dev_dependencies:
   flutter_test:

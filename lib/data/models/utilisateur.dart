@@ -1,26 +1,25 @@
 
-import 'dart:ffi';
-import 'dart:typed_data';
+import 'dart:io';
 
 class Utilisateur {
   String nom;
   String prenom;
   String email;
-  ByteBuffer photoprofil;
   String motdepasse;
   String telephone;
   String genre;
   String note;
+  File? photoprofil;
 
   Utilisateur({
     required this.nom,
     required this.prenom,
     required this.email,
-    required this.photoprofil,
     required this.motdepasse,
     required this.telephone,
     required this.genre,
     required this.note,
+    required this.photoprofil,
   });
 
   Map<String, dynamic> toMap() {
@@ -28,11 +27,11 @@ class Utilisateur {
       'nom': nom,
       'prenom': prenom,
       'email': email,
-      'photoprofil': photoprofil,
       'motdepasse': motdepasse,
       'telephone': email,
       'genre': genre,
       'note': note,
+      'photoprofil': photoprofil,
     };
   }
 }

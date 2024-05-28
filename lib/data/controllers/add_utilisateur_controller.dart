@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 class AddUtilisateurController {
@@ -5,10 +7,11 @@ class AddUtilisateurController {
   TextEditingController nom = TextEditingController();
   TextEditingController prenom = TextEditingController();
   TextEditingController email = TextEditingController();
+  TextEditingController motdepasse = TextEditingController();
   TextEditingController telephone = TextEditingController();
   TextEditingController genre = TextEditingController();
   TextEditingController note = TextEditingController();
-  TextEditingController photoprofil = TextEditingController();
+  File? photoprofil;
   TextEditingController idutilisateur = TextEditingController();
   TextEditingController idservice = TextEditingController();
   TextEditingController nomservice = TextEditingController();
@@ -18,5 +21,6 @@ class AddUtilisateurController {
   TextEditingController cni = TextEditingController();
   TextEditingController selfie = TextEditingController();
   TextEditingController verifier = TextEditingController();
+
 
 }
