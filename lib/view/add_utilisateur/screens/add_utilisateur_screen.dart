@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sdealsidentification/data/controllers/add_utilisateur_controller.dart';
 import 'package:sdealsidentification/data/models/todo.dart';
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_bloc.dart';
-
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_event.dart';
-
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_state.dart';
+import 'dart:io';
+import '../../../data/models/utilisateur.dart';
 
 class AddUtilisateurScreen extends StatefulWidget {
   const AddUtilisateurScreen({super.key});
@@ -64,7 +64,8 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
           ),
         ),
       ),
-      body: Container(
+      body: SingleChildScrollView(
+         child: Container(
         height: MediaQuery.of(context).size.height / 0.8,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Form(
@@ -82,6 +83,13 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
                       return messageText(
                           message: 'Utilisateur ajouté', type: 'success');
                     }
+                    else if (state is ImagePicked) {
+                      print("image pick click");
+                      setState(() {
+                        addUtilisateurController.photoprofil = state.photoprofil;
+                      });
+                    }
+
                     return Container();
                   },
                 ),
@@ -101,32 +109,69 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
                   height: 12,
                 ),
                 formField(
-                    controller: addUtilisateurController.prenom,
+                    controller: addUtilisateurController.email,
                     hintText: 'Email'),
                 const SizedBox(
                   height: 12,
                 ),
                 formField(
-                    controller: addUtilisateurController.prenom,
+                    controller: addUtilisateurController.motdepasse,
+                    hintText: 'Email'),
+                const SizedBox(
+                  height: 12,
+                ),
+                formField(
+                    controller: addUtilisateurController.telephone,
                     hintText: 'Numero de Téléphone'),
                 const SizedBox(
                   height: 12,
                 ),
                 formField(
-                    controller: addUtilisateurController.prenom,
-                    hintText: 'Date de Naissance'),
+                    controller: addUtilisateurController.genre,
+                    hintText: 'Genre'),
+                const SizedBox(
+                  height: 12,
+                ),
+                formField(
+                    controller: addUtilisateurController.note,
+                    hintText: 'Note'),
+                const SizedBox(
+                  height: 12,
+                ),
+                addUtilisateurController.photoprofil == null
+                    ? Text('No image selected.')
+                    : Image.file(addUtilisateurController.photoprofil!),
+                SizedBox(height: 16.0),
+                ElevatedButton(
+                  onPressed: () {
+                     print('checking');
+
+                    BlocProvider.of<AddUtilisateurBloc>(context)
+                        .add(PickImage());
+                  },
+                  child: Text('Pick Image'),
+                ),
                 const SizedBox(
                   height: 12,
                 ),
                 ElevatedButton(
                     onPressed: () {
+                      print("Click");
                       if (isFormValid()) {
-                        Todo todo = Todo(
-                            title: addUtilisateurController.nom.value.text,
-                            content:
-                                addUtilisateurController.prenom.value.text);
+                        Utilisateur utilisateur = Utilisateur(
+                            nom: addUtilisateurController.nom.value.text,
+                            prenom: addUtilisateurController.prenom.value.text,
+                            email: addUtilisateurController.email.value.text,
+                            motdepasse: addUtilisateurController.nom.value.text,
+                            telephone: addUtilisateurController.telephone.value.text,
+                            genre: addUtilisateurController.genre.value.text,
+                            note: addUtilisateurController.note.value.text,
+                            photoprofil: addUtilisateurController.photoprofil
+                        );
+                        print(utilisateur);
+                        print("End User");
                         BlocProvider.of<AddUtilisateurBloc>(context)
-                            .add(AddUtilisateurButtonPressed(todo: todo));
+                            .add(AddUtilisateurButtonPressed(utilisateur: utilisateur));
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -144,7 +189,7 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
             ),
           ),
         ),
-      ),
+      ), ),
     );
   }
 
@@ -170,7 +215,14 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
 
   bool isFormValid() =>
       addUtilisateurController.nom.text.isNotEmpty &&
-      addUtilisateurController.prenom.text.isNotEmpty;
+      addUtilisateurController.prenom.text.isNotEmpty &&
+          addUtilisateurController.email.text.isNotEmpty &&
+          addUtilisateurController.motdepasse.text.isNotEmpty &&
+          addUtilisateurController.telephone.text.isNotEmpty &&
+          addUtilisateurController.genre.text.isNotEmpty &&
+          addUtilisateurController.note.text.isNotEmpty &&
+          addUtilisateurController.photoprofil != null
+  ;
 
   Center messageText({
     required String message,
