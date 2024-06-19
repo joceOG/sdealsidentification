@@ -79,7 +79,7 @@ class AddUtilisateurBloc extends Bloc<AddUtilisateurEvent, AddUtilisateurState> 
     emit(state.copyWith(file: file));
   }
 
-
+/*
   @override
   Stream<Groupe> mapEventToState(AddUtilisateurEvent event) async*{
     switch (event) {
@@ -93,6 +93,8 @@ class AddUtilisateurBloc extends Bloc<AddUtilisateurEvent, AddUtilisateurState> 
       case AddUtilisateurEvent.getDetails:
         break;
     }
+
+*/
 
 
 
