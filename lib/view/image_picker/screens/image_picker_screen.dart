@@ -36,7 +36,7 @@ class _ImagePickerScreenState extends State<ImagePickerScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (){
-
+          context.read<ImagePickerBloc>().add(CameraCapture());
         },
       ),
     );

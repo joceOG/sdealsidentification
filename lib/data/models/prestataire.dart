@@ -2,6 +2,8 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 
+import 'package:image_picker/image_picker.dart';
+
 class Prestataire {
   String idutilisateur;
   String idservice;
@@ -9,8 +11,8 @@ class Prestataire {
   String prixmoyen;
   String localisation;
   String note;
-  ByteBuffer  cni;
-  ByteBuffer  selfie;
+  XFile  cni;
+  XFile  selfie;
   Bool verifier;
 
   Prestataire({

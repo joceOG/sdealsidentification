@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:sdealsidentification/data/controllers/add_utilisateur_controller.dart';
 import 'package:sdealsidentification/data/models/todo.dart';
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_bloc.dart';
@@ -17,7 +18,9 @@ class AddUtilisateurScreen extends StatefulWidget {
 
 class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
   late AddUtilisateurController addUtilisateurController;
+  late AddUtilisateurController addPrestataireontroller;
   late GlobalKey<FormState> formKey;
+  late XFile? photo;
 
   @override
   void initState() {
@@ -66,7 +69,6 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
       ),
       body: SingleChildScrollView(
          child: Container(
-        height: MediaQuery.of(context).size.height / 0.8,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Form(
           key: formKey,
@@ -82,12 +84,6 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
                     } else if (state is AddUtilisateurSuccessState) {
                       return messageText(
                           message: 'Utilisateur ajouté', type: 'success');
-                    }
-                    else if (state is ImagePicked) {
-                      print("image pick click");
-                      setState(() {
-                        addUtilisateurController.photoprofil = state.photoprofil;
-                      });
                     }
 
                     return Container();
@@ -138,53 +134,182 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
                 const SizedBox(
                   height: 12,
                 ),
-                addUtilisateurController.photoprofil == null
-                    ? Text('No image selected.')
-                    : Image.file(addUtilisateurController.photoprofil!),
-                SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                     print('checking');
-
-                    BlocProvider.of<AddUtilisateurBloc>(context)
-                        .add(PickImage());
-                  },
-                  child: Text('Pick Image'),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text('Photo de Profil :'),
+                    ),
+                    Expanded(
+                      child: BlocBuilder<AddUtilisateurBloc, AddUtilisateurState>(
+                        builder: (context, state){
+                          return state.file == null ? InkWell(
+                            onTap: (){
+                              context.read<AddUtilisateurBloc>().add(GalleryPicker());
+                            },
+                            child: const CircleAvatar(
+                              radius: 20,
+                              child: Icon(Icons.camera),
+                            ),
+                          ) : Image.file(File(state.file!.path.toString()),height: 200,width: 200,);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                const Text('Prestataire'),
+                const SizedBox(
+                  height: 30,
+                ),
+                    formField(
+                    controller: addUtilisateurController.nom,
+                    hintText: 'Groupe'),
+                const SizedBox(
+                  height: 12,
+                ),
+                formField(
+                    controller: addUtilisateurController.nom,
+                    hintText: 'Categorie'),
+                const SizedBox(
+                  height: 12,
+                ),
+                formField(
+                    controller: addUtilisateurController.nom,
+                    hintText: 'Service'),
+                const SizedBox(
+                  height: 12,
+                ),
+                formField(
+                    controller: addUtilisateurController.prenom,
+                    hintText: 'Prix Moyen'),
+                const SizedBox(
+                  height: 12,
+                ),
+                formField(
+                    controller: addUtilisateurController.email,
+                    hintText: 'Localisation'),
+                const SizedBox(
+                  height: 12,
+                ),
+                formField(
+                    controller: addUtilisateurController.motdepasse,
+                    hintText: 'Note'),
+                const SizedBox(
+                  height: 12,
+                ),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text('CNI:'),
+                    ),
+                    Expanded(
+                      child: BlocBuilder<AddUtilisateurBloc, AddUtilisateurState>(
+                        builder: (context, state){
+                          return state.file == null ? InkWell(
+                            onTap: (){
+                              context.read<AddUtilisateurBloc>().add(GalleryPicker());
+                            },
+                            child: const CircleAvatar(
+                              radius: 20,
+                              child: Icon(Icons.camera),
+                            ),
+                          ) : Image.file(File(state.file!.path.toString()),height: 200,width: 200,);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(
                   height: 12,
                 ),
-                ElevatedButton(
-                    onPressed: () {
-                      print("Click");
-                      if (isFormValid()) {
-                        Utilisateur utilisateur = Utilisateur(
-                            nom: addUtilisateurController.nom.value.text,
-                            prenom: addUtilisateurController.prenom.value.text,
-                            email: addUtilisateurController.email.value.text,
-                            motdepasse: addUtilisateurController.nom.value.text,
-                            telephone: addUtilisateurController.telephone.value.text,
-                            genre: addUtilisateurController.genre.value.text,
-                            note: addUtilisateurController.note.value.text,
-                            photoprofil: addUtilisateurController.photoprofil
-                        );
-                        print(utilisateur);
-                        print("End User");
-                        BlocProvider.of<AddUtilisateurBloc>(context)
-                            .add(AddUtilisateurButtonPressed(utilisateur: utilisateur));
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(7),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        fixedSize: Size(MediaQuery.of(context).size.width, 30)),
-                    child: const Text(
-                      'Ajouter',
-                      style: TextStyle(color: Colors.white),
-                    )),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text('Selfie'),
+                    ),
+                    Expanded(
+                      child: BlocBuilder<AddUtilisateurBloc, AddUtilisateurState>(
+                        builder: (context, state){
+                          return state.file == null ? InkWell(
+                            onTap: (){
+                              context.read<AddUtilisateurBloc>().add(GalleryPicker());
+                            },
+                            child: const CircleAvatar(
+                              radius: 20,
+                              child: Icon(Icons.camera),
+                            ),
+                          ) : Image.file(File(state.file!.path.toString()),height: 200,width: 200,);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                formField(
+                    controller: addUtilisateurController.note,
+                    hintText: 'Vérifier'),
+                const SizedBox(
+                  height: 12,
+                ),
+                const SizedBox(
+                  height: 12,
+                ),
+                BlocBuilder<AddUtilisateurBloc, AddUtilisateurState>(
+                  builder: (context, state){
+                    return ElevatedButton(
+                        onPressed: () {
+                          print("Click");
+                          Utilisateur utilisateur = Utilisateur(
+                              nom: addUtilisateurController.nom.value.text,
+                              prenom: addUtilisateurController.prenom.value.text,
+                              email: addUtilisateurController.email.value.text,
+                              motdepasse: addUtilisateurController.nom.value.text,
+                              telephone: addUtilisateurController.telephone.value.text,
+                              genre: addUtilisateurController.genre.value.text,
+                              note: addUtilisateurController.note.value.text,
+                              photoprofil: state.file,
+                          );
+                          print("Nom " + utilisateur.nom);
+                          print("Prenom " + utilisateur.prenom);
+                          print("Path Photo " + utilisateur.photoprofil!.path.toString().toString());
+
+                          BlocProvider.of<AddUtilisateurBloc>(context)
+                              .add(AddUtilisateurButtonPressed(utilisateur: utilisateur));
+
+                       /*   if (isFormValid()) {
+                            print('Form Valid');
+                            Utilisateur utilisateur = Utilisateur(
+                                nom: addUtilisateurController.nom.value.text,
+                                prenom: addUtilisateurController.prenom.value.text,
+                                email: addUtilisateurController.email.value.text,
+                                motdepasse: addUtilisateurController.nom.value.text,
+                                telephone: addUtilisateurController.telephone.value.text,
+                                genre: addUtilisateurController.genre.value.text,
+                                note: addUtilisateurController.note.value.text,
+                                photoprofil: photo
+                            );
+                            print(utilisateur);
+                            print("End User");
+
+                            BlocProvider.of<AddUtilisateurBloc>(context)
+                                .add(AddUtilisateurButtonPressed(utilisateur: utilisateur));
+                          } */
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            fixedSize: Size(MediaQuery.of(context).size.width, 30)),
+                        child: const Text(
+                          'Ajouter',
+                          style: TextStyle(color: Colors.white),
+                        )) ;
+                  },
+                ),
+
               ],
             ),
           ),
@@ -214,14 +339,17 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
       );
 
   bool isFormValid() =>
-      addUtilisateurController.nom.text.isNotEmpty &&
-      addUtilisateurController.prenom.text.isNotEmpty &&
+          addUtilisateurController.nom.text.isNotEmpty &&
+          addUtilisateurController.prenom.text.isNotEmpty &&
           addUtilisateurController.email.text.isNotEmpty &&
           addUtilisateurController.motdepasse.text.isNotEmpty &&
           addUtilisateurController.telephone.text.isNotEmpty &&
           addUtilisateurController.genre.text.isNotEmpty &&
           addUtilisateurController.note.text.isNotEmpty &&
           addUtilisateurController.photoprofil != null
+
+
+
   ;
 
   Center messageText({
