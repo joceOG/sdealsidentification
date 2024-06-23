@@ -1,6 +1,8 @@
 
 import 'dart:io';
 
+import 'package:image_picker/image_picker.dart';
+
 class Utilisateur {
   String nom;
   String prenom;
@@ -9,7 +11,7 @@ class Utilisateur {
   String telephone;
   String genre;
   String note;
-  File? photoprofil;
+  XFile? photoprofil;
 
   Utilisateur({
     required this.nom,
