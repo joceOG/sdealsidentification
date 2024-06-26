@@ -26,3 +26,4 @@ class AddUtilisateurButtonPressed extends AddUtilisateurEvent {
 
 class CameraCapture extends AddUtilisateurEvent {}
 class GalleryPicker extends AddUtilisateurEvent {}
+class FetchListGroupeEvent extends AddUtilisateurEvent {}

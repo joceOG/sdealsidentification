@@ -5,6 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sdealsidentification/data/models/todo.dart';
 import 'package:sdealsidentification/data/models/utilisateur.dart';
+import 'package:sdealsidentification/data/services/api_client.dart';
 import 'package:sdealsidentification/data/services/database_service.dart';
 import 'package:sdealsidentification/view/add_todo/add_todo_bloc/add_todo_event.dart';
 
@@ -27,8 +28,11 @@ class AddUtilisateurBloc extends Bloc<AddUtilisateurEvent, AddUtilisateurState> 
   AddUtilisateurBloc(this.imagePickerUtils) : super(AddUtilisateurInitialState()) {
     on<CameraCapture>(_cameraCapture);
     on<GalleryPicker>(_galleryPicker);
+    on<FetchListGroupeEvent>(_fetchGroupe);
 
     on<AddUtilisateurEvent>((event, emit) async {
+
+
 
       if(event is AddUtilisateurInitialEvent) {
         emit(AddUtilisateurInitialState());
@@ -65,9 +69,24 @@ class AddUtilisateurBloc extends Bloc<AddUtilisateurEvent, AddUtilisateurState> 
         }
       }
 
+      if(event is FetchListGroupeEvent) {
+
+      }
+
     });
   }
 
+  void _fetchGroupe(FetchListGroupeEvent event , Emitter<AddUtilisateurState> emit)async{
+    ApiClient apiClient = ApiClient() ;
+    emit(LoadingListGroupeState());
+    try {
+      print('Requete : Liste Groupe') ;
+      List<Groupe> list_groupe = await apiClient.fetchGroupe();
+      emit(ListGroupeSuccesState(groupe: list_groupe));
+    } catch (e) {
+      emit( ListGroupeErrorState(message: 'Une erreur est survenue' + e.toString()));
+    }
+  }
 
 
   void _cameraCapture(CameraCapture event , Emitter<AddUtilisateurState> emit)async{
@@ -78,24 +97,5 @@ class AddUtilisateurBloc extends Bloc<AddUtilisateurEvent, AddUtilisateurState> 
     XFile? file = await imagePickerUtils.pickImageFromGallery();
     emit(state.copyWith(file: file));
   }
-
-/*
-  @override
-  Stream<Groupe> mapEventToState(AddUtilisateurEvent event) async*{
-    switch (event) {
-      case AddTodoInitialEvent.getGroupe:
-
-              return ;
-            })
-        );
-        break;
-
-      case AddUtilisateurEvent.getDetails:
-        break;
-    }
-
-*/
-
-
 
 }

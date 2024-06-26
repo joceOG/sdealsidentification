@@ -6,8 +6,11 @@ import 'package:sdealsidentification/data/models/todo.dart';
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_bloc.dart';
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_event.dart';
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_state.dart';
+import 'package:sdealsidentification/view/list_todos/list_bloc/list_todo_event.dart';
 import 'dart:io';
+import '../../../data/models/groupe.dart';
 import '../../../data/models/utilisateur.dart';
+import '../../../widgets/custom_loader.dart';
 
 class AddUtilisateurScreen extends StatefulWidget {
   const AddUtilisateurScreen({super.key});
@@ -25,7 +28,12 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
   @override
   void initState() {
     BlocProvider.of<AddUtilisateurBloc>(context)
-        .add(AddUtilisateurInitialEvent());
+        .add(FetchListGroupeEvent());
+
+
+
+
+
     addUtilisateurController = AddUtilisateurController();
     formKey = GlobalKey();
     super.initState();
@@ -163,9 +171,46 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
                 const SizedBox(
                   height: 30,
                 ),
-                    formField(
-                    controller: addUtilisateurController.nom,
-                    hintText: 'Groupe'),
+                BlocBuilder<AddUtilisateurBloc, AddUtilisateurState>(
+                  builder: (context, state) {
+                    if(state is ListGroupeSuccesState) {
+                      final List<Groupe> groupe = state.groupe;
+                      return groupe.isEmpty ?
+                      const Center(child: Text('Pas de Groupe'),) :
+                      SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 12
+                        ),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: groupe.asMap().entries.map((e) => Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  e.value.nomgroupe,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20
+                                  ),
+                                ),
+                                if(e.key != groupe.length - 1) const Divider(
+                                  color: Colors.grey,
+                                )
+                              ],
+                            )).toList()
+                        ),
+                      );
+                    } else if (state is ListGroupeErrorState) {
+                      return Center(
+                        child: Text(state.message),
+                      );
+                    } else {
+                      return const CustomLoader();
+                    }
+                  },
+                ),
                 const SizedBox(
                   height: 12,
                 ),
