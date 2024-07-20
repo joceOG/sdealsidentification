@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:sdealsidentification/data/controllers/add_prestataire_controller.dart';
 import 'package:sdealsidentification/data/controllers/add_utilisateur_controller.dart';
+import 'package:sdealsidentification/data/models/prestataire.dart';
 import 'package:sdealsidentification/data/models/todo.dart';
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_bloc.dart';
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_event.dart';
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_state.dart';
+import 'package:sdealsidentification/view/list_todos/list_bloc/list_todo_event.dart';
 import 'dart:io';
+import '../../../data/models/groupe.dart';
 import '../../../data/models/utilisateur.dart';
+import '../../../widgets/custom_loader.dart';
 
 class AddUtilisateurScreen extends StatefulWidget {
   const AddUtilisateurScreen({super.key});
@@ -17,19 +22,17 @@ class AddUtilisateurScreen extends StatefulWidget {
 }
 
 class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
-  late AddUtilisateurController addUtilisateurController;
-  late AddUtilisateurController addPrestataireontroller;
-  late GlobalKey<FormState> formKey;
-  late XFile? photo;
+  final AddUtilisateurController addUtilisateurController = AddUtilisateurController();
+  final AddPrestataireController addPrestataireontroller = AddPrestataireController();
+  final formKey = GlobalKey<FormState>();
+  String? _selectedValue;
+  String? _selectedValue2;
+  String? _selectedValue3;
+  late XFile? photoprofil;
+  late XFile? cni1;
+  late XFile? cni2;
+  late XFile? selfie;
 
-  @override
-  void initState() {
-    BlocProvider.of<AddUtilisateurBloc>(context)
-        .add(AddUtilisateurInitialEvent());
-    addUtilisateurController = AddUtilisateurController();
-    formKey = GlobalKey();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +82,7 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
               children: [
                 BlocBuilder<AddUtilisateurBloc, AddUtilisateurState>(
                   builder: (context, state) {
+
                     if (state is AddUtilisateurErrorState) {
                       return messageText(message: state.message, type: 'error');
                     } else if (state is AddUtilisateurSuccessState) {
@@ -112,7 +116,7 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
                 ),
                 formField(
                     controller: addUtilisateurController.motdepasse,
-                    hintText: 'Email'),
+                    hintText: 'Mot de Passe'),
                 const SizedBox(
                   height: 12,
                 ),
@@ -142,15 +146,15 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
                     Expanded(
                       child: BlocBuilder<AddUtilisateurBloc, AddUtilisateurState>(
                         builder: (context, state){
-                          return state.file == null ? InkWell(
+                          return state.file1 == null ? InkWell(
                             onTap: (){
-                              context.read<AddUtilisateurBloc>().add(GalleryPicker());
+                              context.read<AddUtilisateurBloc>().add(GalleryPicker(numeroPicture:1));
                             },
                             child: const CircleAvatar(
                               radius: 20,
                               child: Icon(Icons.camera),
                             ),
-                          ) : Image.file(File(state.file!.path.toString()),height: 200,width: 200,);
+                          ) : Image.file(File(state.file1!.path.toString()),height: 200,width: 200,);
                         },
                       ),
                     ),
@@ -163,38 +167,120 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
                 const SizedBox(
                   height: 30,
                 ),
-                    formField(
-                    controller: addUtilisateurController.nom,
-                    hintText: 'Groupe'),
+                BlocBuilder<AddUtilisateurBloc, AddUtilisateurState>(
+                  builder: (context, state) {
+                    return
+                    state.dropdownItems == null ?
+                      Center(child: CircularProgressIndicator()) :
+                      DropdownButtonFormField<String>(
+                        value: _selectedValue,
+                        items: state.dropdownItems
+                            ?.map((item) => DropdownMenuItem<String>(
+                          value:  "${item.idgroupe}_${item.nomgroupe}",
+                          child: Text(item.nomgroupe),
+                        ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedValue = value;
+                          });
+                          String? nomgroupe = _selectedValue?.split("_")[1];
+                          BlocProvider.of<AddUtilisateurBloc>(context)
+                              .add(LoadCategorieSelectFieldData(nomgroupe: nomgroupe!));
+                        },
+                        decoration: InputDecoration(labelText: 'Select Field'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select an item';
+                          }
+                          return null;
+                        },
+                      ) ;
+                  },
+                ),
+                const SizedBox(
+                  height: 12,
+                ),
+             BlocBuilder<AddUtilisateurBloc, AddUtilisateurState>(
+                builder: (context, state) {
+                    return
+                      state.dropdownItems2 == null ?
+                      Center(child: CircularProgressIndicator()) :
+                      DropdownButtonFormField<String>(
+                        value: _selectedValue2,
+                        items: state.dropdownItems2
+                            ?.map((item) => DropdownMenuItem<String>(
+                          value: "${item.idcategorie}_${item.nomcategorie}",
+                          child: Text(item.nomcategorie),
+                        ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedValue2 = value;
+                          });
+                          String? nomcategorie = _selectedValue2?.split("_")[1];
+                          BlocProvider.of<AddUtilisateurBloc>(context)
+                              .add(LoadServiceSelectFieldData(nomcategorie: nomcategorie!));
+                        },
+                        decoration: InputDecoration(labelText: 'Select Field'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select an item';
+                          }
+                          return null;
+                        },
+                      ) ;
+                },
+              ),
+
+                const SizedBox(
+                  height: 12,
+                ),
+                BlocBuilder<AddUtilisateurBloc, AddUtilisateurState>(
+                  builder: (context, state) {
+                    return
+                      state.dropdownItems3 == null ?
+                      Center(child: CircularProgressIndicator()) :
+                      DropdownButtonFormField<String>(
+                        value: _selectedValue3,
+                        items: state.dropdownItems3
+                            ?.map((item) => DropdownMenuItem<String>(
+                          value: "${item.idservice}_${item.nomservice}",
+                          child: Text(item.nomservice),
+                        ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedValue3 = value;
+                          });
+                        },
+                        decoration: InputDecoration(labelText: 'Select Field'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select an item';
+                          }
+                          return null;
+                        },
+                      ) ;
+                  },
+                ),
                 const SizedBox(
                   height: 12,
                 ),
                 formField(
-                    controller: addUtilisateurController.nom,
-                    hintText: 'Categorie'),
-                const SizedBox(
-                  height: 12,
-                ),
-                formField(
-                    controller: addUtilisateurController.nom,
-                    hintText: 'Service'),
-                const SizedBox(
-                  height: 12,
-                ),
-                formField(
-                    controller: addUtilisateurController.prenom,
+                    controller: addPrestataireontroller.prixmoyen,
                     hintText: 'Prix Moyen'),
                 const SizedBox(
                   height: 12,
                 ),
                 formField(
-                    controller: addUtilisateurController.email,
+                    controller: addPrestataireontroller.localisation,
                     hintText: 'Localisation'),
                 const SizedBox(
                   height: 12,
                 ),
                 formField(
-                    controller: addUtilisateurController.motdepasse,
+                    controller: addPrestataireontroller.note,
                     hintText: 'Note'),
                 const SizedBox(
                   height: 12,
@@ -202,20 +288,45 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
                 Row(
                   children: <Widget>[
                     Expanded(
-                      child: Text('CNI:'),
+                      child: Text('CNI RECTO:'),
                     ),
                     Expanded(
                       child: BlocBuilder<AddUtilisateurBloc, AddUtilisateurState>(
                         builder: (context, state){
-                          return state.file == null ? InkWell(
+                          return state.file2 == null ? InkWell(
                             onTap: (){
-                              context.read<AddUtilisateurBloc>().add(GalleryPicker());
+                              context.read<AddUtilisateurBloc>().add(GalleryPicker(numeroPicture:2));
                             },
                             child: const CircleAvatar(
                               radius: 20,
                               child: Icon(Icons.camera),
                             ),
-                          ) : Image.file(File(state.file!.path.toString()),height: 200,width: 200,);
+                          ) : Image.file(File(state.file2!.path.toString()),height: 200,width: 200 );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 12,
+                ),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text('CNI :'),
+                    ),
+                    Expanded(
+                      child: BlocBuilder<AddUtilisateurBloc, AddUtilisateurState>(
+                        builder: (context, state){
+                          return state.file3 == null ? InkWell(
+                            onTap: (){
+                              context.read<AddUtilisateurBloc>().add(GalleryPicker(numeroPicture:3));
+                            },
+                            child: const CircleAvatar(
+                              radius: 20,
+                              child: Icon(Icons.camera),
+                            ),
+                          ) : Image.file(File(state.file3!.path.toString()),height: 200,width: 200 );
                         },
                       ),
                     ),
@@ -232,22 +343,22 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
                     Expanded(
                       child: BlocBuilder<AddUtilisateurBloc, AddUtilisateurState>(
                         builder: (context, state){
-                          return state.file == null ? InkWell(
+                          return state.file4 == null ? InkWell(
                             onTap: (){
-                              context.read<AddUtilisateurBloc>().add(GalleryPicker());
+                              context.read<AddUtilisateurBloc>().add(GalleryPicker( numeroPicture: 4));
                             },
                             child: const CircleAvatar(
                               radius: 20,
                               child: Icon(Icons.camera),
                             ),
-                          ) : Image.file(File(state.file!.path.toString()),height: 200,width: 200,);
+                          ) : Image.file(File(state.file4!.path.toString()),height: 200,width: 200,);
                         },
                       ),
                     ),
                   ],
                 ),
                 formField(
-                    controller: addUtilisateurController.note,
+                    controller: addPrestataireontroller.verifier,
                     hintText: 'Vérifier'),
                 const SizedBox(
                   height: 12,
@@ -268,14 +379,31 @@ class _AddUtilisateurScreenState extends State<AddUtilisateurScreen> {
                               telephone: addUtilisateurController.telephone.value.text,
                               genre: addUtilisateurController.genre.value.text,
                               note: addUtilisateurController.note.value.text,
-                              photoprofil: state.file,
+                              photoprofil: state.file1,
                           );
                           print("Nom " + utilisateur.nom);
-                          print("Prenom " + utilisateur.prenom);
-                          print("Path Photo " + utilisateur.photoprofil!.path.toString().toString());
+                          print("Path Photo " + utilisateur.photoprofil!.path.toString());
+
+                          //Prestataire
+                          Prestataire prestataire = Prestataire(
+                            idutilisateur: "",
+                            nomprenom: addUtilisateurController.nom.value.text +
+                                addUtilisateurController.prenom.value.text,
+                            telephone: addUtilisateurController.telephone.value.text,
+                            idservice: _selectedValue3!.split("_")[0],
+                            nomservice: _selectedValue3!.split("_")[1],
+                            prixmoyen: addPrestataireontroller.prixmoyen.value.text,
+                            note: addPrestataireontroller.note.value.text,
+                            localisation: addPrestataireontroller.localisation.value.text,
+                            cni1: state.file2,
+                            cni2: state.file3,
+                            selfie: state.file4,
+                            verifier: addPrestataireontroller.verifier.value.text,
+                          );
 
                           BlocProvider.of<AddUtilisateurBloc>(context)
-                              .add(AddUtilisateurButtonPressed(utilisateur: utilisateur));
+                              .add(AddUtilisateurButtonPressed
+                            (utilisateur: utilisateur , prestataire: prestataire));
 
                        /*   if (isFormValid()) {
                             print('Form Valid');
