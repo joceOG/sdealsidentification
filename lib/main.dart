@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sdealsidentification/view/add_todo/add_todo_bloc/add_todo_bloc.dart';
 import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_bloc.dart';
+import 'package:sdealsidentification/view/add_utilisateur/add_utilisateur_bloc/add_utilisateur_event.dart';
 import 'package:sdealsidentification/view/add_utilisateur/screens/add_utilisateur_screen.dart';
 import 'package:sdealsidentification/view/image_picker/screens/image_picker_screen.dart';
 import 'package:sdealsidentification/view/list_todos/list_bloc/list_todo_bloc.dart';
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AddUtilisateurBloc>(
-          create: (context) => AddUtilisateurBloc(ImagePickerUtils()) ,
+          create: (context) => AddUtilisateurBloc(ImagePickerUtils())..add(LoadGroupeSelectFieldData())   ,
         ),
       ],
       child: MaterialApp(
